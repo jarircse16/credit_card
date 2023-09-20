@@ -1,0 +1,65 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+}
+
+.container {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 400px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.logo img {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+}
+
+.card-details {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.name-number h6,
+.valid-date h6 {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 5px;
+}
+
+.number {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.chip {
+    width: 60px;
+    height: auto;
+    margin-left: auto;
+}
+
+h1 {
+    color: #333;
+}
+
+a {
+    text-decoration: none;
+    color: #007bff;
+}
+
+a:hover {
+    text-decoration: underline;
+}

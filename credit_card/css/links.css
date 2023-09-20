@@ -1,0 +1,10 @@
+/* CSS Styles */
+a {
+    color: green; /* Change the color to red */
+    text-decoration: none; /* Remove underlines (if desired) */
+}
+
+/* Apply a different color when the link is hovered over */
+a:hover {
+    color: red; /* Change the color on hover (e.g., back to blue) */
+}
