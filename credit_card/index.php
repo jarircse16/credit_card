@@ -19,6 +19,7 @@
         echo('<h1>Welcome to Credit Card System</h1>');
         require_once('login.php');
         require_once('signup.php');
+        echo('<br><html><head><link rel="stylesheet" href="css/hover.css"><link rel="stylesheet" href="css/links.css"></head><body><button class="hover-button"><a href="is_valid.php">Check Credit Card Validity</a></h1></button></body></html>');
     }
     ?>
 </body>
