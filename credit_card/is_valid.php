@@ -66,6 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <title>Credit Card Validity Check</title>
     <link rel="stylesheet" href="css/hover.css">
     <link rel="stylesheet" href="css/links.css">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <center><h1>Credit Card Validity Check</h1>
