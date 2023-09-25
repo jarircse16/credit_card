@@ -1,49 +1,124 @@
 <?php
-ini_set('display_errors', 0);
+//ini_set('display_errors', 0);
 session_start();
 
-require_once 'includes/db.php';
-require_once 'includes/functions.php';
+require_once 'db.php';
+require_once 'functions.php';
 
-try {
-    // Create a PDO instance
-    $conn = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+// Include the brute force protection script
+require_once 'bruteforce_protection.php';
 
-    // Set PDO to throw exceptions on errors
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-    // Check if the submitted username and password are valid
+// Check if the form was submitted
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $submittedUsername = $_POST['username'];
     $submittedPassword = $_POST['password'];
 
-    // Prepare a SQL statement to fetch user credentials
-    $stmt = $conn->prepare("SELECT user_id, username, password FROM users WHERE username = ?");
-    $stmt->execute([$submittedUsername]);
-    $row = $stmt->fetch();
+    // Create a mysqli instance for database operations
+    $conn = new mysqli($servername, $username, $password, $dbname);
 
-    if ($row) {
-        // User found, check the password
-        $hashedPassword = $row['password'];
+    // Check the connection
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    // Prepare and execute a SQL statement to fetch user credentials
+    $stmt = $conn->prepare("SELECT user_id, username, password FROM users WHERE username = ?");
+    $stmt->bind_param("s", $submittedUsername);
+    $stmt->execute();
+    $stmt->store_result();
+
+    if ($stmt->num_rows > 0) {
+        $stmt->bind_result($user_id, $username, $hashedPassword);
+        $stmt->fetch();
+
+        // Verify the submitted password against the hashed password
         if (password_verify($submittedPassword, $hashedPassword)) {
             // Authentication successful
-            $_SESSION['user_id'] = $row['user_id']; // Store user ID in the session
-            $_SESSION['username'] = $row['username']; // Store username in the session
+            resetLoginAttempts(); // Reset login attempts on successful login
+            $_SESSION['user_id'] = $user_id; // Store user ID in the session
+            $_SESSION['username'] = $username; // Store username in the session
             header("Location: dashboard.php"); // Redirect to the dashboard or homepage
             exit();
         } else {
             // Invalid password
+            logFailedAttempt(); // Log failed login attempt
+            if ($_SESSION['login_attempts'] >= $maxAttempts) {
+                setBlock(); // Set temporary block on further login attempts
+            }
             echo "<script src=js/invalid_password.js></script>";
-          //  echo "<center><h1>Invalid Password.</h1></center><br>";
-          //  echo "<center><h1><a href='index.php'>Back to Login</a></h1></center>";
         }
     } else {
         // User not found
+        logFailedAttempt(); // Log failed login attempt
+        if ($_SESSION['login_attempts'] >= $maxAttempts) {
+            setBlock(); // Set temporary block on further login attempts
+        }
         echo "<script src=js/invalid_username.js></script>";
-        //echo "<center><h1>Invalid Username.</h1></center><br>";
-      //  echo "<center><h1><a href='index.php'>Back to Login</a></h1></center>";
     }
-} catch (PDOException $e) {
-    // Handle database connection or query errors
-    echo "Error: " . $e->getMessage();
+
+    $stmt->close();
+    $conn->close();
+}
+?>
+<?php
+//ini_set('display_errors', 0);
+session_start();
+
+require_once 'db.php';
+require_once 'functions.php';
+
+// Include the brute force protection script
+require_once 'bruteforce_protection.php';
+
+// Check if the form was submitted
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $submittedUsername = $_POST['username'];
+    $submittedPassword = $_POST['password'];
+
+    // Create a mysqli instance for database operations
+    $conn = new mysqli($servername, $username, $password, $dbname);
+
+    // Check the connection
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    // Prepare and execute a SQL statement to fetch user credentials
+    $stmt = $conn->prepare("SELECT user_id, username, password FROM users WHERE username = ?");
+    $stmt->bind_param("s", $submittedUsername);
+    $stmt->execute();
+    $stmt->store_result();
+
+    if ($stmt->num_rows > 0) {
+        $stmt->bind_result($user_id, $username, $hashedPassword);
+        $stmt->fetch();
+
+        // Verify the submitted password against the hashed password
+        if (password_verify($submittedPassword, $hashedPassword)) {
+            // Authentication successful
+            resetLoginAttempts(); // Reset login attempts on successful login
+            $_SESSION['user_id'] = $user_id; // Store user ID in the session
+            $_SESSION['username'] = $username; // Store username in the session
+            header("Location: dashboard.php"); // Redirect to the dashboard or homepage
+            exit();
+        } else {
+            // Invalid password
+            logFailedAttempt(); // Log failed login attempt
+            if ($_SESSION['login_attempts'] >= $maxAttempts) {
+                setBlock(); // Set temporary block on further login attempts
+            }
+            echo "<script src=js/invalid_password.js></script>";
+        }
+    } else {
+        // User not found
+        logFailedAttempt(); // Log failed login attempt
+        if ($_SESSION['login_attempts'] >= $maxAttempts) {
+            setBlock(); // Set temporary block on further login attempts
+        }
+        echo "<script src=js/invalid_username.js></script>";
+    }
+
+    $stmt->close();
+    $conn->close();
 }
 ?>
